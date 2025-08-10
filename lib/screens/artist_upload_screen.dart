@@ -211,23 +211,44 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
+      resizeToAvoidBottomInset: true,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             floating: true,
+            snap: true,
             backgroundColor: Theme.of(context).colorScheme.surface,
+            leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: Icon(
+                Icons.close_rounded,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: _uploadAlbum,
+                child: Text(
+                  'Publish',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Upload Music 🎤',
+                  'Create Album 🎤',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 Text(
-                  'Share your music with the world',
+                  'Share your creativity with the world',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
@@ -243,54 +264,121 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Progress Indicator
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline_rounded,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Fill in the details below to create your album. All fields marked with * are required.',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
                     // Album Cover
                     Text(
-                      'Album Cover',
+                      'Album Cover *',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 12),
-                    GestureDetector(
-                      onTap: _selectCoverImage,
-                      child: Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: _selectCoverImage,
+                          child: Container(
+                            width: 120,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: _selectedImageUrl != null 
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                                width: _selectedImageUrl != null ? 2 : 1,
+                              ),
+                            ),
+                            child: _selectedImageUrl != null
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(11),
+                                    child: Image.network(
+                                      _selectedImageUrl!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) => Container(
+                                        color: Theme.of(context).colorScheme.primaryContainer,
+                                        child: Icon(
+                                          Icons.add_photo_alternate_rounded,
+                                          size: 40,
+                                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : Icon(
+                                    Icons.add_photo_alternate_rounded,
+                                    size: 40,
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                                  ),
                           ),
                         ),
-                        child: _selectedImageUrl != null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(11),
-                                child: Image.network(
-                                  _selectedImageUrl!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) => Container(
-                                    color: Theme.of(context).colorScheme.primaryContainer,
-                                    child: Icon(
-                                      Icons.add_photo_alternate_rounded,
-                                      size: 40,
-                                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                                    ),
-                                  ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Choose a cover image',
+                                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
                                 ),
-                              )
-                            : Icon(
-                                Icons.add_photo_alternate_rounded,
-                                size: 40,
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                               ),
-                      ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Select an eye-catching image that represents your album. This will be the first thing listeners see.',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              OutlinedButton.icon(
+                                onPressed: _selectCoverImage,
+                                icon: const Icon(Icons.image_rounded, size: 18),
+                                label: Text(_selectedImageUrl != null ? 'Change Image' : 'Select Image'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Theme.of(context).colorScheme.primary,
+                                  side: BorderSide(color: Theme.of(context).colorScheme.primary),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                     
                     const SizedBox(height: 24),
                     
                     // Album Title
                     Text(
-                      'Album Title',
+                      'Album Title *',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -300,9 +388,12 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
                       controller: _titleController,
                       decoration: InputDecoration(
                         hintText: 'Enter album title',
+                        prefixIcon: const Icon(Icons.album_rounded),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        filled: true,
+                        fillColor: Theme.of(context).colorScheme.surface,
                       ),
                       validator: (value) => value?.isEmpty == true ? 'Title is required' : null,
                     ),
@@ -311,7 +402,7 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
                     
                     // Genre
                     Text(
-                      'Genre',
+                      'Genre *',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -321,9 +412,12 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
                       value: _selectedGenre,
                       onChanged: (value) => setState(() => _selectedGenre = value!),
                       decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.category_rounded),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        filled: true,
+                        fillColor: Theme.of(context).colorScheme.surface,
                       ),
                       items: _genres.map((genre) => DropdownMenuItem(
                         value: genre,
@@ -335,7 +429,7 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
                     
                     // Price
                     Text(
-                      'Price (\$)',
+                      'Price (USD) *',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -347,13 +441,17 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
                       decoration: InputDecoration(
                         hintText: '9.99',
                         prefixText: '\$',
+                        prefixIcon: const Icon(Icons.attach_money_rounded),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        filled: true,
+                        fillColor: Theme.of(context).colorScheme.surface,
                       ),
                       validator: (value) {
                         if (value?.isEmpty == true) return 'Price is required';
                         if (double.tryParse(value!) == null) return 'Invalid price';
+                        if (double.parse(value) < 0) return 'Price cannot be negative';
                         return null;
                       },
                     ),
@@ -373,9 +471,15 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
                       maxLines: 3,
                       decoration: InputDecoration(
                         hintText: 'Describe your album...',
+                        prefixIcon: const Padding(
+                          padding: EdgeInsets.only(bottom: 40),
+                          child: Icon(Icons.description_rounded),
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        filled: true,
+                        fillColor: Theme.of(context).colorScheme.surface,
                       ),
                     ),
                     
@@ -386,7 +490,7 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Tracks (${_tracks.length})',
+                          'Tracks (${_tracks.length}) *',
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
@@ -400,6 +504,9 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Theme.of(context).colorScheme.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
                           ),
                         ),
                       ],
@@ -415,6 +522,7 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
                             color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
                           ),
                           borderRadius: BorderRadius.circular(12),
+                          color: Theme.of(context).colorScheme.surface,
                         ),
                         child: Column(
                           children: [
@@ -430,6 +538,13 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
                                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                               ),
                             ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Add at least one track to create your album',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                              ),
+                            ),
                           ],
                         ),
                       )
@@ -442,7 +557,15 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
                         itemBuilder: (context, index) {
                           final track = _tracks[index];
                           return Card(
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                              ),
+                            ),
                             child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               leading: CircleAvatar(
                                 backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                                 child: Text(
@@ -453,8 +576,16 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
                                   ),
                                 ),
                               ),
-                              title: Text(track.title),
-                              subtitle: Text(track.duration),
+                              title: Text(
+                                track.title,
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              subtitle: Text(
+                                'Duration: ${track.duration}',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                                ),
+                              ),
                               trailing: IconButton(
                                 onPressed: () => _removeTrack(index),
                                 icon: Icon(
@@ -479,7 +610,7 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
                           color: Theme.of(context).colorScheme.onPrimary,
                         ),
                         label: Text(
-                          'Upload Album',
+                          'Publish Album',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
@@ -492,7 +623,52 @@ class _ArtistUploadScreenState extends State<ArtistUploadScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
+                          elevation: 2,
                         ),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 20),
+                    
+                    // Terms and conditions
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline_rounded,
+                                size: 16,
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Publishing Guidelines',
+                                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '• Ensure you own all rights to the music you upload\n'
+                            '• Albums will be reviewed before going live\n'
+                            '• You can edit pricing and details after publishing\n'
+                            '• Earnings are available for withdrawal after 24 hours',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

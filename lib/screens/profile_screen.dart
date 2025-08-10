@@ -4,6 +4,8 @@ import 'package:melodymarket/models/user.dart';
 import 'package:melodymarket/models/album.dart';
 import 'package:melodymarket/widgets/album_card.dart';
 
+import 'package:melodymarket/widgets/quick_action_button.dart';
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -376,9 +378,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'A marketplace where artists can share their music and fans can discover and support their favorite musicians.',
+                  title: _currentUser?.isArtist == true ? 'Uploaded' : 'Downloaded',
+                  value: _currentUser?.isArtist == true 
+                      ? '${_userAlbums.length}' 
+                      : '${_currentUser?.downloadedAlbums.length ?? 0}',
+                  icon: _currentUser?.isArtist == true 
+                      ? Icons.cloud_upload_rounded 
+                      : Icons.download_rounded,
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                               height: 1.5,
@@ -387,8 +393,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(height: 12),
                           Text(
                             'Version 1.0.0',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                          ? '🎤 Artist • ${_userAlbums.length} uploads' 
+                          : '🎵 Music Lover • ${_purchasedAlbums.length} albums',
                             ),
                           ),
                         ],
@@ -409,6 +415,99 @@ class _StatCard extends StatelessWidget {
   final String title;
   final String value;
   final IconData icon;
+          // Quick Actions for Artists
+          if (_currentUser?.isArtist == true) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                    Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.trending_up_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Artist Dashboard',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _QuickActionButton(
+                          icon: Icons.upload_rounded,
+                        behavior: SnackBarBehavior.floating,
+                          label: 'Upload',
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Navigate to upload screen from bottom nav!'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _QuickActionButton(
+                          icon: Icons.analytics_rounded,
+                          label: 'Analytics',
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Analytics feature coming soon!'),
+                                behavior: SnackBarBehavior.floating,
+                          behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _QuickActionButton(
+                          icon: Icons.account_balance_wallet_rounded,
+                          label: 'Earnings',
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Earnings dashboard coming soon!'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+                        behavior: SnackBarBehavior.floating,
+            const SizedBox(height: 24),
+          ],
+          
   final Color color;
 
   const _StatCard({
@@ -429,6 +528,7 @@ class _StatCard extends StatelessWidget {
         ),
       ),
       child: Padding(
+                        behavior: SnackBarBehavior.floating,
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -458,3 +558,4 @@ class _StatCard extends StatelessWidget {
     );
   }
 }
+                    'A revolutionary music marketplace where artists can share their music and fans can discover and support their favorite musicians. Built with love for the music community.',

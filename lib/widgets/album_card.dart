@@ -68,6 +68,21 @@ class AlbumCard extends StatelessWidget {
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.primary,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                  : null,
+                              strokeWidth: 2,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        );
+                      },
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Icon(
@@ -83,15 +98,22 @@ class AlbumCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.7),
+                        color: Colors.green,
                         borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: Text(
                         album.genre,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
-                        ),
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -156,36 +178,39 @@ class AlbumCard extends StatelessWidget {
                               onPressed: onPurchase,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context).colorScheme.primary,
+                        const Spacer(),
+                        Icon(
+                          Icons.access_time_rounded,
+                          size: 12,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          _formatDate(album.createdAt),
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                          ),
+                        ),
                                 foregroundColor: Theme.of(context).colorScheme.onPrimary,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                minimumSize: Size.zero,
-                              ),
-                              child: const Text('Buy', style: TextStyle(fontWeight: FontWeight.w600)),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: onPurchase,
+                          icon: const Icon(Icons.shopping_cart_rounded, size: 16),
+                          label: const Text('Buy Now', style: TextStyle(fontWeight: FontWeight.w600)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          ],
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
                         ),
-                      ] else if (isPurchased) ...[
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            if (isDownloaded) ...[
-                              Icon(
-                                Icons.download_done_rounded,
-                                size: 16,
-                                color: Theme.of(context).colorScheme.tertiary,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Downloaded',
-                                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ] else ...[
                               Icon(
                                 Icons.check_circle_rounded,
                                 size: 16,
@@ -209,13 +234,13 @@ class AlbumCard extends StatelessWidget {
                                     decoration: BoxDecoration(
                                       color: Theme.of(context).colorScheme.secondaryContainer,
                                       shape: BoxShape.circle,
-                                    ),
+                              color: Colors.green,
                                     child: Icon(
                                       Icons.download_rounded,
                                       size: 16,
                                       color: Theme.of(context).colorScheme.onSecondaryContainer,
                                     ),
-                                  ),
+                                color: Colors.green,
                                 ),
                             ],
                           ],
@@ -224,11 +249,47 @@ class AlbumCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (!isPurchased)
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        album.formattedPrice,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+  
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date).inDays;
+    
+    if (difference == 0) {
+      return 'Today';
+    } else if (difference == 1) {
+      return 'Yesterday';
+    } else if (difference < 7) {
+      return '${difference}d ago';
+    } else if (difference < 30) {
+      return '${(difference / 7).floor()}w ago';
+    } else {
+      return '${(difference / 30).floor()}m ago';
+    }
   }
 }
