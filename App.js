@@ -3,7 +3,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
-import { Provider as PaperProvider } from 'react-native-paper';
 import * as SplashScreen from 'expo-splash-screen';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -19,7 +18,7 @@ import ArtistDashboardScreen from './src/screens/ArtistDashboardScreen';
 import WithdrawalScreen from './src/screens/WithdrawalScreen';
 
 // Import theme
-import { theme } from './src/theme/theme';
+import { colors } from './src/theme/theme';
 
 // Import services
 import { StorageService } from './src/services/StorageService';
@@ -49,7 +48,7 @@ function MainTabs() {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: theme.colors.primary,
+        tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: 'gray',
         headerShown: false,
         tabBarStyle: {
@@ -109,11 +108,9 @@ export default function App() {
   }
 
   return (
-    <PaperProvider theme={theme}>
-      <NavigationContainer>
-        <StatusBar style="auto" />
-        <AppNavigator />
-      </NavigationContainer>
-    </PaperProvider>
+    <NavigationContainer>
+      <StatusBar style="auto" />
+      <AppNavigator />
+    </NavigationContainer>
   );
 }
